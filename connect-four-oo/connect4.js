@@ -6,10 +6,12 @@
  */
 
 class Game {
-  constructor(width, height) {
+  constructor(width, height, color1, color2) {
     this.width = width;
     this.height = height;
-    this.currPlayer = 1;
+    this.player1 = new Player(1, color1);
+    this.player2 = new Player(2, color2);
+    this.currPlayer = this.player1;
     this.board = this.makeBoard(width, height);
     this.makeHtmlBoard(width, height);
   }
@@ -74,7 +76,8 @@ class Game {
   placeInTable(y, x) {
     const piece = document.createElement("div");
     piece.classList.add("piece");
-    piece.classList.add(`p${this.currPlayer}`);
+    piece.classList.add(`p${this.currPlayer.id}`);
+    piece.style.backgroundColor = this.currPlayer.color;
     piece.style.top = -50 * (y + 2);
 
     const spot = document.getElementById(`${y}-${x}`);
@@ -104,12 +107,12 @@ class Game {
     }
 
     // place piece in board and add to HTML table
-    this.board[y][x] = this.currPlayer;
+    this.board[y][x] = this.currPlayer.id;
     this.placeInTable(y, x);
 
     // check for win
     if (this.checkForWin()) {
-      return this.endGame(`Player ${this.currPlayer} won!`);
+      return this.endGame(`Player ${this.currPlayer.id} won!`);
     }
 
     // check for tie
@@ -118,7 +121,8 @@ class Game {
     }
 
     // switch players
-    this.currPlayer = this.currPlayer === 1 ? 2 : 1;
+    this.currPlayer =
+      this.currPlayer === this.player1 ? this.player2 : this.player1;
   }
 
   /** checkForWin: check board cell-by-cell for "does a win start here?" */
@@ -134,7 +138,7 @@ class Game {
           y < this.height &&
           x >= 0 &&
           x < this.width &&
-          this.board[y][x] === this.currPlayer
+          this.board[y][x] === this.currPlayer.id
       );
     };
 
@@ -176,9 +180,18 @@ class Game {
   }
 }
 
+class Player {
+  constructor(id, color) {
+    this.id = id;
+    this.color = color;
+  }
+}
+
 document.querySelector("button").addEventListener("click", newGame);
 
 function newGame() {
   document.querySelector("#board").replaceChildren("");
-  new Game(7, 6);
+  const color1 = document.querySelector("#player-one-color").value;
+  const color2 = document.querySelector("#player-two-color").value;
+  new Game(7, 6, color1, color2);
 }
