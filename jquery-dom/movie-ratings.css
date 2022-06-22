@@ -1,0 +1,35 @@
+h1 {
+  text-align: center;
+  font-size: 4em;
+}
+
+#movie-ratings {
+  display: grid;
+  justify-content: center;
+}
+
+input {
+  margin-right: 5px;
+}
+
+#title-input {
+  min-width: 400px;
+}
+
+.rating {
+  margin-right: 10px;
+}
+
+.remove-btn {
+  font-size: 0.7em;
+  padding: 0.2em 0.5em;
+  color: white;
+  background-color: #ff5555;
+  float: right;
+}
+
+li {
+  font-size: 1.5em;
+  list-style-type: none;
+  margin-bottom: 10px;
+}
