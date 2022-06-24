@@ -1,0 +1,40 @@
+h1 {
+  font-size: 3em;
+  text-align: center;
+}
+
+form {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+}
+
+form * {
+  font-size: 1.5em;
+}
+
+.btn {
+  border: none;
+  border-radius: 5px;
+  color: white;
+  margin-left: 5px;
+}
+
+#remove-btn {
+  background-color: #ff6622;
+}
+
+#search-btn {
+  background-color: #2266ff;
+}
+
+#gif-container {
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  grid-template-columns: 1fr 1fr;
+}
+
+img {
+  margin-bottom: 20px;
+}
