@@ -28,7 +28,7 @@ interface NumberFact {
 
 async function getNumberFacts(n: number): Promise<string> {
   const res = await fetch(`http://numbersapi.com/${n}?json`);
-  const json: NumberFact = await res.json();
+  const json: NumberFact = await res.json(); /* Is there a better way? */
   return json.text;
 }
 
@@ -60,18 +60,19 @@ getMultiNumberTriviaForm.addEventListener(
   "submit",
   async (evt: SubmitEvent) => {
     evt.preventDefault();
-    const numbers = multiNumInput.value;
-    const numbers_array = numbers
+    const numbers = multiNumInput.value
       .split(" ")
       .map((n) => Number(n))
       .filter((n) => isFinite(n));
-    if (numbers_array.length > 1) {
-      const facts = await getMultipleNumberFacts(numbers_array);
+
+    if (numbers.length > 1) {
+      const facts = await getMultipleNumberFacts(numbers);
       facts.forEach((fact) => addNumberFactToDom(fact));
     } else {
-      const fact = await getNumberFacts(Number(numbers_array.join()));
+      const fact = await getNumberFacts(Number(numbers.join()));
       addNumberFactToDom(fact);
     }
+
     getMultiNumberTriviaForm.reset();
   }
 );
@@ -80,7 +81,6 @@ getMultiNumberTriviaForm.addEventListener(
  * Deck of Cards
  */
 
-//const getCardForm = document.querySelector("#get-card-form") as HTMLFormElement;
 const getDeckForm = document.querySelector("#get-deck-form") as HTMLFormElement;
 const cardsContainer = document.querySelector(
   "#cards-container"
@@ -89,35 +89,56 @@ const cardsControls = document.querySelector(
   "#cards-controls"
 ) as HTMLDivElement;
 
-function getDeck(): Promise<string> {
-  return fetch("http://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1")
-    .then((res) => res.json())
-    .then((json) => json.deck_id)
-    .catch((err) => err);
+interface Deck {
+  deck_id: string; // There's more, but it's not really needed here
 }
 
-function drawCard(deck_id: string): Promise<string> {
-  return fetch(`http://deckofcardsapi.com/api/deck/${deck_id}/draw/?count=1`)
-    .then((res) => res.json())
-    .then((json) => json.cards[0].image)
-    .catch((err) => {
-      const drawCardButton = cardsControls.querySelector(
-        "#draw-card-button"
-      ) as HTMLButtonElement;
-      cardsControls.removeChild(drawCardButton);
-      return "none";
-    });
+async function getDeck(): Promise<string> {
+  const res = await fetch(
+    "http://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1"
+  );
+  const json: Deck = await res.json();
+  return json.deck_id;
+}
+
+/* Again, there's more to these */
+interface CardDraw {
+  cards: Card[];
+  remaining: number;
+}
+
+interface Card {
+  image: string;
+}
+
+async function drawCard(deck_id: string): Promise<string> {
+  const res = await fetch(
+    `http://deckofcardsapi.com/api/deck/${deck_id}/draw/?count=1`
+  );
+  const json: CardDraw = await res.json();
+
+  /* Remove button if no cards are remaining */
+  if (json.remaining === 0) {
+    const drawCardButton = cardsControls.querySelector(
+      "#draw-card-button"
+    ) as HTMLButtonElement;
+    cardsControls.removeChild(drawCardButton);
+  }
+
+  return json.cards[0].image;
 }
 
 function makeGetCardButton(deck: string): void {
   const button = document.createElement("button");
   button.innerText = "Draw a card";
   button.id = "draw-card-button";
-  button.addEventListener("click", (evt: MouseEvent) => {
+
+  button.addEventListener("click", async (evt: MouseEvent) => {
     evt.preventDefault();
-    const cardImgURL = drawCard(deck);
-    cardImgURL.then((url) => (url === "none" ? null : addCardToDOM(url)));
+    const cardImgURL = await drawCard(deck);
+    addCardToDOM(cardImgURL);
   });
+
   cardsControls.append(button);
 }
 
@@ -128,13 +149,13 @@ function addCardToDOM(url: string): void {
   cardsContainer.append(img);
 }
 
-getDeckForm.addEventListener("submit", (evt: SubmitEvent) => {
+getDeckForm.addEventListener("submit", async (evt: SubmitEvent) => {
   evt.preventDefault();
   const oldButton = cardsControls.querySelector("#draw-card-button");
   if (oldButton) {
     cardsControls.removeChild(oldButton);
   }
   cardsContainer.replaceChildren("");
-  const deck = getDeck();
-  deck.then((deck) => makeGetCardButton(deck));
+  const deck = await getDeck();
+  makeGetCardButton(deck);
 });
