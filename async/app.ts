@@ -19,20 +19,24 @@ const multiNumInput = getMultiNumberTriviaForm.querySelector(
 
 const triviaList = document.querySelector("#trivia-list") as HTMLUListElement;
 
-function getNumberFacts(n: number): Promise<string> {
-  return fetch(`http://numbersapi.com/${n}?json`)
-    .then((res) => res.json())
-    .then((json) => json.text)
-    .catch((err) => err);
+interface NumberFact {
+  text: string;
+  number: number;
+  found: boolean;
+  type: string;
 }
 
-function getMultipleNumberFacts(numbers: string[]): Promise<string[]> {
+async function getNumberFacts(n: number): Promise<string> {
+  const res = await fetch(`http://numbersapi.com/${n}?json`);
+  const json: NumberFact = await res.json();
+  return json.text;
+}
+
+async function getMultipleNumberFacts(numbers: number[]): Promise<string[]> {
   const numString = numbers.join(",");
-  console.log(numString);
-  return fetch(`http://numbersapi.com/${numString}?json`)
-    .then((res) => res.json())
-    .then((json) => Object.values(json))
-    .catch((err) => err);
+  const res = await fetch(`http://numbersapi.com/${numString}?json`);
+  const json = await res.json();
+  return Object.values(json);
 }
 
 function addNumberFactToDom(fact: string): void {
@@ -41,34 +45,36 @@ function addNumberFactToDom(fact: string): void {
   triviaList.append(li);
 }
 
-getNumberTriviaForm.addEventListener("submit", (evt) => {
+getNumberTriviaForm.addEventListener("submit", async (evt: SubmitEvent) => {
   evt.preventDefault();
   const n = singleNumInput.valueAsNumber;
-  const trivia = getNumberFacts(n);
-  trivia.then((fact) => addNumberFactToDom(fact));
+  const fact = await getNumberFacts(n);
+  addNumberFactToDom(fact);
   getNumberTriviaForm.reset();
 });
 
 /*
  * This function does not catch invalid input
  */
-getMultiNumberTriviaForm.addEventListener("submit", (evt: SubmitEvent) => {
-  evt.preventDefault();
-  const numbers = multiNumInput.value;
-  const numbers_array = numbers.split(" ");
-  if (numbers_array.length > 1) {
-    const trivia = getMultipleNumberFacts(numbers_array);
-    trivia.then((facts) =>
-      facts.forEach((fact: string) => addNumberFactToDom(fact))
-    );
-  } else {
-    const trivia = getNumberFacts(Number(numbers_array.join()));
-    trivia
-      .then((fact) => addNumberFactToDom(fact))
-      .catch((err) => console.log(err));
+getMultiNumberTriviaForm.addEventListener(
+  "submit",
+  async (evt: SubmitEvent) => {
+    evt.preventDefault();
+    const numbers = multiNumInput.value;
+    const numbers_array = numbers
+      .split(" ")
+      .map((n) => Number(n))
+      .filter((n) => isFinite(n));
+    if (numbers_array.length > 1) {
+      const facts = await getMultipleNumberFacts(numbers_array);
+      facts.forEach((fact) => addNumberFactToDom(fact));
+    } else {
+      const fact = await getNumberFacts(Number(numbers_array.join()));
+      addNumberFactToDom(fact);
+    }
+    getMultiNumberTriviaForm.reset();
   }
-  getMultiNumberTriviaForm.reset();
-});
+);
 
 /*
  * Deck of Cards
