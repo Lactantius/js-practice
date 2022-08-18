@@ -43,7 +43,9 @@ getMultiNumberTriviaForm.addEventListener("submit", (evt) => {
     }
     else {
         const trivia = getNumberFacts(Number(numbers_array.join()));
-        trivia.then((fact) => addNumberFactToDom(fact));
+        trivia
+            .then((fact) => addNumberFactToDom(fact))
+            .catch((err) => console.log(err));
     }
     getMultiNumberTriviaForm.reset();
 });

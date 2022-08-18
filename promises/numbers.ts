@@ -49,6 +49,9 @@ getNumberTriviaForm.addEventListener("submit", (evt) => {
   getNumberTriviaForm.reset();
 });
 
+/*
+ * This function does not catch invalid input
+ */
 getMultiNumberTriviaForm.addEventListener("submit", (evt: SubmitEvent) => {
   evt.preventDefault();
   const numbers = multiNumInput.value;
@@ -60,7 +63,9 @@ getMultiNumberTriviaForm.addEventListener("submit", (evt: SubmitEvent) => {
     );
   } else {
     const trivia = getNumberFacts(Number(numbers_array.join()));
-    trivia.then((fact) => addNumberFactToDom(fact));
+    trivia
+      .then((fact) => addNumberFactToDom(fact))
+      .catch((err) => console.log(err));
   }
   getMultiNumberTriviaForm.reset();
 });
