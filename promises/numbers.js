@@ -1,26 +1,44 @@
 "use strict";
-var getTriviaForm = document.querySelector('#get-number-trivia');
-var singleNumInput = getTriviaForm.querySelector('input');
-var triviaList = document.querySelector('#trivia-list');
+const getNumberTriviaForm = document.querySelector("#get-number-trivia-form");
+const singleNumInput = getNumberTriviaForm.querySelector("input");
+const getMultiNumberTriviaForm = document.querySelector("#get-multi-number-trivia-form");
+const multiNumInput = getMultiNumberTriviaForm.querySelector("input");
+const triviaList = document.querySelector("#trivia-list");
 function getNumberFacts(n) {
-    return fetch("http://numbersapi.com/".concat(n, "?json"))
-        .then(function (res) { return res.json().then(function (json) { return json.text; }); })["catch"](function (err) { return err; });
+    return fetch(`http://numbersapi.com/${n}?json`)
+        .then((res) => res.json().then((json) => json.text))
+        .catch((err) => err);
 }
 function getMultipleNumberFacts(numbers) {
-    var numString = numbers.join(',');
-    fetch("http://numbersapi.com/".concat(numString, "?json"))
-        .then(function (res) { return console.log(res.json()); })["catch"](function (err) { return console.log(err); });
+    const numString = numbers.join(",");
+    console.log(numString);
+    return fetch(`http://numbersapi.com/${numString}?json`)
+        .then((res) => res.json().then((json) => Object.values(json)))
+        .catch((err) => err);
 }
-getTriviaForm.addEventListener('submit', function (evt) {
+function addNumberFactToDom(fact) {
+    const li = document.createElement("li");
+    li.innerText = fact;
+    triviaList.append(li);
+}
+getNumberTriviaForm.addEventListener("submit", (evt) => {
     evt.preventDefault();
-    var n = singleNumInput.valueAsNumber;
-    var trivia = getNumberFacts(n);
-    addNumberFactToDom(trivia);
+    const n = singleNumInput.valueAsNumber;
+    const trivia = getNumberFacts(n);
+    trivia.then((fact) => addNumberFactToDom(fact));
+    getNumberTriviaForm.reset();
 });
-function addNumberFactToDom(trivia) {
-    trivia.then(function (fact) {
-        var li = document.createElement('li');
-        li.innerText = fact;
-        triviaList.append(li);
-    });
-}
+getMultiNumberTriviaForm.addEventListener("submit", (evt) => {
+    evt.preventDefault();
+    const numbers = multiNumInput.value;
+    const numbers_array = numbers.split(" ");
+    if (numbers_array.length > 1) {
+        const trivia = getMultipleNumberFacts(numbers_array);
+        trivia.then((facts) => facts.forEach((fact) => addNumberFactToDom(fact)));
+    }
+    else {
+        const trivia = getNumberFacts(Number(numbers_array.join()));
+        trivia.then((fact) => addNumberFactToDom(fact));
+    }
+    getMultiNumberTriviaForm.reset();
+});
