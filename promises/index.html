@@ -4,11 +4,12 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Untitled</title>
+    <title>Numbers, Cards, and Pokemon</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="stylesheet" href="style.css">
     <!-- Place favicon.ico in the root directory -->
 
 </head>
@@ -21,14 +22,20 @@
             your experience.
             </p>
         <![endif]-->
+    <h1>Numbers, Cards, and Pokemon</h1>
 
+    <h2>Number Trivia</h2>
+
+    <h3>Single Numbers</h3>
     <form id="get-number-trivia-form">
         <input type="number">
         <button>Get Trivia</button>
     </form>
 
+    <h3>Multiple Numbers (Separate with Spaces)</h3>
     <form id="get-multi-number-trivia-form">
         <input type="text">
+        <button>Get Trivia</button>
     </form>
 
     <div id="trivia-container">
@@ -36,7 +43,17 @@
         </ul>
     </div>
 
+    <h2>Deck of Cards</h2>
+    <div id="cards-controls">
+        <form id="get-deck-form">
+            <button>Get a new deck</button>
+        </form>
+    </div>
+
+    <div id="cards-container"></div>
+
     <script src="./numbers.js"></script>
+
 </body>
 
 </html>
