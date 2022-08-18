@@ -1,1 +1,3 @@
 .log
+promises/*.js
+async/*.js
